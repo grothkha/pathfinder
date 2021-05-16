@@ -1,0 +1,16 @@
+{
+  "name": "pathfinder",
+  "version": "1.0.0",
+  "description": "pathfinder",
+  "main": "dist/app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "eslint": "^7.26.0",
+    "typescript": "^4.2.4"
+  }
+}
