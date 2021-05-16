@@ -19,7 +19,7 @@ export default class World {
     }
 
     public isWalkable(x: number, y: number): boolean {
-        if (x <= this.sizeX && y <= this.sizeY) {
+        if (x >= 0 && x <= this.sizeX && y >= 0 && y <= this.sizeY) {
             return this.grid[x][y] == 1;
         }
     }
