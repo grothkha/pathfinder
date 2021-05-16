@@ -9,5 +9,9 @@ console.log(`${world.isWalkable(5,5)}`);
 console.log(`${world.isWalkable(3,5)}`);
 
 let player = new Unit(new Vector2(2,8), 'player');
-console.log(`name: ${player.name} | x: ${player.currentPosition.x} | y: ${player.currentPosition.y}`);
+console.log(`name: ${player.name} | x: ${player.getPosition().x} | y: ${player.getPosition().y}`);
 let target = new Unit(new Vector2(7,2), 'target');
+
+console.log(player.getPosition().getLength());
+console.log(target.getPosition().getLength());
+console.log(player.getPosition().distanceTo(target.getPosition()));
