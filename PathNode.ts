@@ -64,4 +64,13 @@ export default class PathNode {
         }
         return false;
     }
+
+    isAtPosition(position: Vector2): boolean {
+        if (this.getPosition().x == position.x) {
+            if (this.getPosition().y == position.y) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

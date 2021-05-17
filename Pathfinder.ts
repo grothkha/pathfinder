@@ -33,29 +33,31 @@ export default class Pathfinder {
                 break;
             }
             // add current visited node to closed node list
-            if (!this.nodeIsInClosedList(this.currentNode)) this.closedNodes.push(this.currentNode); // TODO check reference
+            if (!this.isNodeInClosedList(this.currentNode)) this.closedNodes.push(this.currentNode); // TODO check reference
 
             // check if current node is the target
             if (this.currentNode.getPosition().x == this.targetNode.getPosition().x && this.currentNode.getPosition().y == this.targetNode.getPosition().y) {
                 run = false;
-                console.log(`FOUND! ${this.currentNode}`);
+                console.log(`FOUND TARGET!`);
                 // TODO backtrace path
                 return this.currentNode;
             }
 
-            // get valid neigbours
-            let neighbours = this.getValidNeighbours(this.currentNode);
+            // get valid neigbour positions
+            let neighbourPositions = this.getValidNeighbourCoordinates(this.currentNode);
 
             // update cost values
-            neighbours.forEach(neighbour => {
+            neighbourPositions.forEach(position => {
                 // check if node is in open list and use this instead
-                let existingNode = this.getNodeFromOpenList(neighbour);
+                let existingNode = this.getNodeFromOpenList(position);
                 if (existingNode != null) {
+                    // TODO only do this if gCost is lower
                     existingNode.setParentNode(this.currentNode);
                     this.updateCostValues(existingNode, this.currentNode);
                 } else {
-                    this.updateCostValues(neighbour, this.currentNode);
-                    this.openNodes.push(neighbour);
+                    let newNeighbour = new PathNode(position, this.currentNode);
+                    this.updateCostValues(newNeighbour, this.currentNode);
+                    this.openNodes.push(newNeighbour);
                 }
             });
         }
@@ -85,41 +87,48 @@ export default class Pathfinder {
         return result;
     }
 
-    private getValidNeighbours(node: PathNode): Array<PathNode> {
+    private getValidNeighbourCoordinates(node: PathNode): Array<Vector2> {
         let nodePosition = node.getPosition();
-        let results = new Array<PathNode>();
+        let results = new Array<Vector2>();
         for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
-                // check if neighbour node is not given node
+                // check if neighbour position is notthe position of the given node
                 if (i == 0 && j == 0) continue;
-                // check if neighbour node is in world and walkable
+                // check if neighbour position is in world and walkable
                 if (!this.world.isWalkable(nodePosition.x + i, nodePosition.y + j)) continue;
-                // skip neighbour node if it is in closed list
-                let newPathNode = new PathNode(new Vector2(nodePosition.x + i, nodePosition.y + j), node);
-                if (this.nodeIsInClosedList(newPathNode)) continue;
-                // push node to results
-                results.push(newPathNode);
+                // skip neighbour position if it is in closed list
+                if (this.isPositionInClosedList(nodePosition.x + i, nodePosition.y + j)) continue;
+                // push position to results
+                results.push(new Vector2(nodePosition.x + i, nodePosition.y + j));
             }
         }
         return results;
     }
 
-    private updateCostValues(currentNode: PathNode, parentNode: PathNode) {
+    private updateCostValues(currentNode: PathNode, parentNode: PathNode): void {
         // update cost values from starting node
+        let newGCost: number;
         if (currentNode.getPosition().x != parentNode.getPosition().x && currentNode.getPosition().y != parentNode.getPosition().y) {
-            currentNode.setGCost(parentNode.getGCost() + this.DIAGONAL_LINE_COST);
+            newGCost = parentNode.getGCost() + this.DIAGONAL_LINE_COST;
         } else {
-            currentNode.setGCost(parentNode.getGCost() + this.STRAIGHT_LINE_COST);
+            newGCost = parentNode.getGCost() + this.STRAIGHT_LINE_COST;
         }
+        // only set new gCost if not set before or lower
+        if (!currentNode.getGCost() || currentNode.getGCost() > newGCost) {
+            currentNode.setGCost(newGCost);
+        }
+
         // update cost values to target node
         // TODO improve calculation
-        currentNode.setHCost(currentNode.distanceTo(this.targetNode));
+        if (!currentNode.getHCost()) {
+            currentNode.setHCost(currentNode.distanceTo(this.targetNode));
+        }
     }
 
-    private getNodeFromOpenList(node: PathNode): PathNode {
+    private getNodeFromOpenList(position: Vector2): PathNode {
         let result = null
         this.openNodes.forEach(currentNode => {
-            if (currentNode.equals(node)) {
+            if (currentNode.isAtPosition(position)) {
                 result = currentNode;
                 return;
             }
@@ -127,12 +136,17 @@ export default class Pathfinder {
         return result;
     }
 
-    private nodeIsInClosedList(node: PathNode): boolean {
-        let result = false
-        this.closedNodes.forEach(currentNode => {
-            if (currentNode.equals(node)) {
-                result = true;
-                return;
+    private isNodeInClosedList(node: PathNode): boolean {
+        return this.isPositionInClosedList(node.getPosition().x, node.getPosition().y);
+    }
+
+    private isPositionInClosedList(x: number, y: number): boolean {
+        let result = false;
+        this.closedNodes.forEach(node => {
+            if (node.getPosition().x == x) {
+                if (node.getPosition().y == y) {
+                    result = true;
+                }
             }
         });
         return result;
