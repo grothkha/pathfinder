@@ -38,9 +38,7 @@ export default class Pathfinder {
             // check if current node is the target
             if (this.currentNode.getPosition().x == this.targetNode.getPosition().x && this.currentNode.getPosition().y == this.targetNode.getPosition().y) {
                 run = false;
-                console.log(`FOUND TARGET!`);
-                // TODO backtrace path
-                return this.currentNode;
+                return this.getPathFromNode(this.currentNode);
             }
 
             // get valid neigbour positions
@@ -123,6 +121,18 @@ export default class Pathfinder {
         if (!currentNode.getHCost()) {
             currentNode.setHCost(currentNode.distanceTo(this.targetNode));
         }
+    }
+
+    private getPathFromNode(node: PathNode): Array<Vector2> {
+        let path = Array<Vector2>(node.getPosition());
+        let currentNode = node;
+        let currentParentNode = node.getParentNode();
+        while(currentParentNode) {
+            currentNode = currentParentNode;
+            currentParentNode = currentNode.getParentNode();
+            path.unshift(currentNode.getPosition());
+        }
+        return path;
     }
 
     private getNodeFromOpenList(position: Vector2): PathNode {
