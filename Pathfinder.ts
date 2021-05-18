@@ -103,19 +103,22 @@ export default class Pathfinder {
 
     private updateCostValues(currentNode: PathNode, parentNode: PathNode): void {
         // update cost values from starting node
+        // TODO improve calculation
         let newGCost: number;
-        if (currentNode.getPosition().x != parentNode.getPosition().x && currentNode.getPosition().y != parentNode.getPosition().y) {
-            newGCost = parentNode.getGCost() + this.DIAGONAL_LINE_COST;
-        } else {
-            newGCost = parentNode.getGCost() + this.STRAIGHT_LINE_COST;
-        }
+        // if (currentNode.getPosition().x != parentNode.getPosition().x && currentNode.getPosition().y != parentNode.getPosition().y) {
+        //     newGCost = parentNode.getGCost() + this.DIAGONAL_LINE_COST;
+        // } else {
+        //     newGCost = parentNode.getGCost() + this.STRAIGHT_LINE_COST;
+        // }
+        newGCost = currentNode.distanceTo(parentNode);
+
         // only set new gCost if not set before or lower
         if (!currentNode.getGCost() || currentNode.getGCost() > newGCost) {
             currentNode.setGCost(newGCost);
         }
 
         // update cost values to target node
-        // TODO improve calculation
+        // TODO improve calculation using heuristics
         if (!currentNode.getHCost()) {
             currentNode.setHCost(currentNode.distanceTo(this.targetNode));
         }
