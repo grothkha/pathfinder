@@ -32,8 +32,6 @@ export default class Pathfinder {
                 run = false;
                 break;
             }
-            // add current visited node to closed node list
-            if (!this.isNodeInClosedList(this.currentNode)) this.closedNodes.push(this.currentNode); // TODO check reference
 
             // check if current node is the target
             if (this.currentNode.getPosition().x == this.targetNode.getPosition().x && this.currentNode.getPosition().y == this.targetNode.getPosition().y) {
@@ -63,7 +61,6 @@ export default class Pathfinder {
 
     private findLowestCostNode(): PathNode {
         if (this.openNodes.length <= 0) return null;
-
         let result = this.openNodes[0];
         let resultIndex = 0;
         // finde node with lowest fCost
@@ -74,14 +71,15 @@ export default class Pathfinder {
                     result = node;
                     resultIndex = index;
                 }
-            }
-            else if (node.getFCost() < result.getFCost()) {
+            } else if (node.getFCost() < result.getFCost()) {
                 result = node;
                 resultIndex = index;
             }
         });
         // remove result node from open node list
         this.openNodes.splice(resultIndex, 1); // TODO check reference
+        // add current visited node to closed node list
+        if (!this.isNodeInClosedList(result)) this.closedNodes.push(result); // TODO check reference
         return result;
     }
 
@@ -127,7 +125,7 @@ export default class Pathfinder {
         let path = Array<Vector2>(node.getPosition());
         let currentNode = node;
         let currentParentNode = node.getParentNode();
-        while(currentParentNode) {
+        while (currentParentNode) {
             currentNode = currentParentNode;
             currentParentNode = currentNode.getParentNode();
             path.unshift(currentNode.getPosition());
